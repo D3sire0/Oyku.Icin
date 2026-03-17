@@ -22,6 +22,7 @@
             overflow: hidden;
             height: 100vh;
             width: 100vw;
+            touch-action: none;
         }
 
         #bg-canvas { position: fixed; inset: 0; z-index: 0; }
@@ -73,14 +74,36 @@
             cursor: pointer;
         }
 
-        /* Patlama Parçacıkları */
-        .particle {
+        /* CANLI KALP STİLLERİ */
+        .heart {
             position: fixed;
-            pointer-events: none;
-            border-radius: 50%;
-            z-index: 100;
+            font-size: 55px;
+            z-index: 60;
+            user-select: none;
+            cursor: pointer;
+            filter: drop-shadow(0 0 15px var(--main)); /* Parlama */
+            animation: heartbeat 1.2s ease-in-out infinite, floatAround 6s ease-in-out infinite;
         }
 
+        /* Kalp Atışı Animasyonu */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.25); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.15); }
+            60% { transform: scale(1); }
+        }
+
+        /* Süzülme Animasyonu */
+        @keyframes floatAround {
+            0%, 100% { translate: 0 0; }
+            25% { translate: 10px -15px; }
+            50% { translate: -10px -25px; }
+            75% { translate: 15px -10px; }
+        }
+
+        .particle { position: fixed; pointer-events: none; z-index: 100; font-size: 20px; }
+        
         #plane-wrap { position: fixed; inset: 0; z-index: 50; display: none; }
         #plane-img { position: absolute; width: 280px; left: -300px; top: 45%; filter: drop-shadow(0 0 20px var(--main)); }
 
@@ -90,17 +113,10 @@
             font-weight: bold; text-shadow: 0 0 10px var(--main);
         }
 
-        .heart {
-            position: fixed; font-size: 50px; z-index: 60;
-            user-select: none; touch-action: manipulation;
-            cursor: pointer;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
         .char { width: 160px; margin-bottom: 20px; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        #no-btn { position: absolute; transition: 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #no-btn { position: absolute; transition: 0.1s linear; }
     </style>
 </head>
 <body>
@@ -110,7 +126,7 @@
     <audio id="pop" src="pop.mp3"></audio>
 
     <div id="entry-screen">
-        <button id="start-btn" class="btn" onclick="startLoading()">Oyunu Başlat</button>
+        <button id="main-start-btn" class="btn" onclick="loadingSequence()">Oyunu Başlat</button>
     </div>
 
     <div id="ui">💜 Kalan: <span id="cnt">15</span></div>
@@ -119,14 +135,14 @@
         <div class="card">
             <img src="karakter.png" class="char">
             <h1 class="headline">Merhaba Öykü...</h1>
-            <p style="margin-bottom: 25px; opacity: 0.8;">Senin için hazırladığım küçük bir oyun var. Başlamaya ne dersin?</p>
+            <p style="margin-bottom: 25px; opacity: 0.8;">Küçük bir oyun hazırladım. Hazır mısın?</p>
             <button class="btn" onclick="startPlane()">Hazırım ❤️</button>
         </div>
     </div>
 
     <div id="plane-wrap">
         <img id="plane-img" src="ucak.png">
-        <div id="p-txt" style="position:fixed; bottom:20%; width:100%; text-align:center; font-family:'Playfair Display'; font-size:1.4rem; opacity:0; transition:1s;">O halde oyun başlıyor Birtanem...</div>
+        <div id="p-txt" style="position:fixed; bottom:20%; width:100%; text-align:center; font-family:'Playfair Display'; font-size:1.4rem; opacity:0; transition:1s;">Oyun başlıyor Birtanem...</div>
     </div>
 
     <div id="s2" class="stage">
@@ -138,9 +154,9 @@
     </div>
 
     <div id="s3" class="stage">
-        <div class="card" style="min-height: 300px; display: flex; flex-direction: column; justify-content: center;">
+        <div class="card" style="min-height: 320px; display: flex; flex-direction: column; justify-content: center;">
             <h1 class="headline">Peki beni seviyor musun?</h1>
-            <div style="position: relative; height: 120px; margin-top: 20px;">
+            <div style="position: relative; height: 150px; margin-top: 20px;">
                 <button class="btn" onclick="victory()" style="position: relative; z-index: 2;">Evet ❤️</button>
                 <button class="btn" id="no-btn" onmouseover="dodge()" ontouchstart="dodge()" style="background: rgba(255,255,255,0.1); border: 1px solid white;">Hayır</button>
             </div>
@@ -160,7 +176,7 @@
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
 
-        // Arka Plan Yıldızları
+        // Arka Plan
         let stars = [];
         function initStars() {
             canvas.width = window.innerWidth;
@@ -174,7 +190,7 @@
         }
         function draw() {
             ctx.clearRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(255,255,255,0.5)";
+            ctx.fillStyle = "rgba(255,255,255,0.4)";
             stars.forEach(s => {
                 ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
                 s.y -= s.speed; if(s.y < 0) s.y = canvas.height;
@@ -183,15 +199,11 @@
         }
         initStars(); draw();
 
-        // Yükleme ve Başlatma
-        function startLoading() {
-            const btn = document.getElementById('start-btn');
+        function loadingSequence() {
+            const btn = document.getElementById('main-start-btn');
             btn.innerText = "Oyun Yükleniyor...";
-            btn.style.opacity = "0.7";
-            btn.disabled = true;
-            
-            music.play().catch(() => console.log("Müzik için kullanıcı etkileşimi bekleniyor."));
-
+            btn.style.opacity = "0.6";
+            music.play().catch(() => {});
             setTimeout(() => {
                 document.getElementById('entry-screen').style.opacity = '0';
                 setTimeout(() => {
@@ -206,137 +218,100 @@
             if(id) document.getElementById(id).classList.add('active');
         }
 
-        // Patlama Efekti Fonksiyonu
-        function createExplosion(x, y, color) {
-            for (let i = 0; i < 8; i++) {
+        function burstEffect(x, y) {
+            for (let i = 0; i < 12; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
-                p.innerText = '✨';
+                p.innerHTML = ['✨', '💜', '🌸'][Math.floor(Math.random() * 3)];
                 p.style.left = x + 'px';
                 p.style.top = y + 'px';
-                p.style.fontSize = Math.random() * 15 + 10 + 'px';
-                
-                const destX = (Math.random() - 0.5) * 200;
-                const destY = (Math.random() - 0.5) * 200;
-                
                 document.body.appendChild(p);
+
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * 120 + 60;
                 
-                const anim = p.animate([
+                p.animate([
                     { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                    { transform: `translate(${destX}px, ${destY}px) scale(0)`, opacity: 0 }
-                ], {
-                    duration: 600,
-                    easing: 'cubic-bezier(0, .9, .57, 1)'
-                });
-                
-                anim.onfinish = () => p.remove();
+                    { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
+                ], { duration: 800, easing: 'ease-out' }).onfinish = () => p.remove();
             }
         }
 
-        // Uçak Akışı
         function startPlane() {
             setActive(null);
             const wrap = document.getElementById('plane-wrap');
             const img = document.getElementById('plane-img');
-            const txt = document.getElementById('p-txt');
             wrap.style.display = 'block';
-
             let x = -350;
             const flight = setInterval(() => {
-                x += 7;
+                x += 8;
                 img.style.left = x + 'px';
-                img.style.transform = `rotate(${Math.sin(x/50)*5}deg)`;
-                if(x > window.innerWidth / 3) txt.style.opacity = '1';
+                if(x > window.innerWidth / 3) document.getElementById('p-txt').style.opacity = '1';
                 if(x > window.innerWidth + 350) {
                     clearInterval(flight);
                     wrap.style.display = 'none';
-                    initHearts();
+                    initHeartGame();
                 }
             }, 16);
         }
 
-        // Kalp Oyunu
-        let left = 15;
-        function initHearts() {
+        let heartsLeft = 15;
+        function initHeartGame() {
             document.getElementById('ui').style.display = 'block';
-            for(let i=0; i<15; i++) {
-                setTimeout(createHeart, i * 250);
-            }
+            for(let i=0; i<15; i++) setTimeout(spawnHeart, i * 300);
         }
 
-        function createHeart() {
+        function spawnHeart() {
             const h = document.createElement('div');
             h.className = 'heart';
             h.innerHTML = '💜';
-            h.style.left = (Math.random() * 80 + 10) + 'vw';
-            h.style.top = (Math.random() * 70 + 15) + 'vh';
-            
-            h.onclick = (e) => {
-                pop.currentTime = 0; 
-                pop.play();
-                
-                // Patlama efektini tetikle
-                createExplosion(e.clientX, e.clientY, '#e0aaff');
-                
-                h.style.transform = 'scale(1.5) rotate(45deg)';
-                h.style.opacity = '0';
-                left--;
-                document.getElementById('cnt').innerText = left;
-                setTimeout(() => h.remove(), 200);
-                
-                if(left === 0) {
+            h.style.left = (Math.random() * 70 + 15) + 'vw';
+            h.style.top = (Math.random() * 60 + 20) + 'vh';
+            // Her kalp için rastgele animasyon gecikmesi (daha doğal durması için)
+            h.style.animationDelay = `${Math.random() * 2}s, ${Math.random() * 1}s`;
+
+            const clickAction = (e) => {
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                pop.currentTime = 0; pop.play();
+                burstEffect(cx, cy);
+                h.remove();
+                heartsLeft--;
+                document.getElementById('cnt').innerText = heartsLeft;
+                if(heartsLeft === 0) {
                     document.getElementById('ui').style.display = 'none';
-                    setTimeout(startStory, 600);
+                    setTimeout(startStory, 800);
                 }
             };
+            h.addEventListener('touchstart', (e) => { e.preventDefault(); clickAction(e); });
+            h.addEventListener('mousedown', clickAction);
             document.body.appendChild(h);
         }
 
-        // Hikaye
-        const lines = [
-            "Kırk altı tane uçuşan kalp olsun isterdim.",
-            "Fakat o çok fazla...",
-            "Bizi ayrı bıraktığın her gün için 15 tane kalp koydum.",
-            "Peki beğendin mi?"
-        ];
-        let currentIdx = 0;
-
-        function startStory() {
-            setActive('s2');
-            showLine();
-        }
-
-        function showLine() {
+        const lines = ["Kırk altı tane uçuşan kalp olsun isterdim.", "Fakat o çok fazla...", "Bizi ayrı bıraktığın her gün için 15 tane kalp koydum.", "Peki beğendin mi?"];
+        let currentLine = 0;
+        function startStory() { setActive('s2'); nextText(); }
+        function nextText() {
             const txt = document.getElementById('story-txt');
             const btns = document.getElementById('story-btns');
-            txt.style.opacity = '0';
-            btns.style.opacity = '0';
-
+            txt.style.opacity = '0'; btns.style.opacity = '0';
             setTimeout(() => {
-                txt.innerText = lines[currentIdx];
+                txt.innerText = lines[currentLine];
                 txt.style.opacity = '1';
                 setTimeout(() => {
-                    const isLast = currentIdx === lines.length - 1;
-                    btns.innerHTML = isLast 
-                        ? `<button class="btn" onclick="setActive('s3')">Beğendim 😊</button>`
-                        : `<button class="btn" onclick="currentIdx++; showLine()">Devam Et</button>`;
+                    btns.innerHTML = currentLine === lines.length - 1 
+                        ? `<button class="btn" onclick="setActive('s3')">Beğendim 😊</button>` 
+                        : `<button class="btn" onclick="currentLine++; nextText()">Devam Et</button>`;
                     btns.style.opacity = '1';
-                }, 500);
-            }, 300);
+                }, 800);
+            }, 400);
         }
 
         function dodge() {
             const btn = document.getElementById('no-btn');
-            const padding = 50;
-            const maxX = window.innerWidth - btn.offsetWidth - padding;
-            const maxY = window.innerHeight - btn.offsetHeight - padding;
-
-            const newX = Math.random() * (maxX - padding) + padding;
-            const newY = Math.random() * (maxY - padding) + padding;
-
             btn.style.position = 'fixed';
-            btn.style.left = newX + 'px';
-            btn.style.top = newY + 'px';
+            btn.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+            btn.style.top = Math.random() * (window.innerHeight - 50) + 'px';
         }
 
         function victory() {
@@ -346,13 +321,12 @@
                 p.innerHTML = '💜';
                 p.style.position = 'fixed';
                 p.style.left = Math.random() * 100 + 'vw';
-                p.style.top = '-20px';
-                p.style.fontSize = '20px';
+                p.style.top = '-50px';
                 p.style.transition = '4s linear';
                 document.body.appendChild(p);
                 setTimeout(() => p.style.top = '110vh', 20);
                 setTimeout(() => p.remove(), 4000);
-            }, 150);
+            }, 100);
         }
     </script>
 </body>
