@@ -52,6 +52,7 @@
             max-width: 400px;
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            z-index: 20; /* Uçakların önünde kalsın diye */
         }
 
         .headline {
@@ -74,38 +75,74 @@
             cursor: pointer;
         }
 
-        /* CANLI KALP STİLLERİ */
         .heart {
             position: fixed;
             font-size: 55px;
             z-index: 60;
             user-select: none;
             cursor: pointer;
-            filter: drop-shadow(0 0 15px var(--main)); /* Parlama */
+            filter: drop-shadow(0 0 15px var(--main));
             animation: heartbeat 1.2s ease-in-out infinite, floatAround 6s ease-in-out infinite;
         }
 
-        /* Kalp Atışı Animasyonu */
         @keyframes heartbeat {
-            0% { transform: scale(1); }
-            15% { transform: scale(1.25); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.15); }
-            60% { transform: scale(1); }
+            0%, 30%, 60%, 100% { transform: scale(1); }
+            15% { transform: scale(1.2); }
+            45% { transform: scale(1.1); }
         }
 
-        /* Süzülme Animasyonu */
         @keyframes floatAround {
             0%, 100% { translate: 0 0; }
-            25% { translate: 10px -15px; }
-            50% { translate: -10px -25px; }
-            75% { translate: 15px -10px; }
+            50% { translate: -10px -20px; }
         }
 
         .particle { position: fixed; pointer-events: none; z-index: 100; font-size: 20px; }
         
         #plane-wrap { position: fixed; inset: 0; z-index: 50; display: none; }
         #plane-img { position: absolute; width: 280px; left: -300px; top: 45%; filter: drop-shadow(0 0 20px var(--main)); }
+
+        /* Final Uçak ve Pankart Stili */
+        .victory-plane {
+            position: fixed;
+            display: flex;
+            align-items: center;
+            z-index: 5; /* Kartın arkasında */
+            pointer-events: none;
+        }
+
+        .victory-plane img {
+            width: 120px;
+            filter: drop-shadow(0 0 10px var(--main));
+        }
+
+        .banner {
+            background: var(--main);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-family: 'Playfair Display', serif;
+            margin-left: 10px;
+            position: relative;
+            box-shadow: 0 0 15px var(--main);
+            animation: bannerWave 1s ease-in-out infinite;
+            white-space: nowrap;
+        }
+
+        .banner::before {
+            content: "";
+            position: absolute;
+            left: -15px;
+            top: 50%;
+            width: 15px;
+            height: 2px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        @keyframes bannerWave {
+            0%, 100% { transform: rotate(-2deg) translateY(0); }
+            50% { transform: rotate(2deg) translateY(-3px); }
+        }
 
         #ui {
             position: fixed; top: 20px; width: 100%; text-align: center;
@@ -157,7 +194,7 @@
         <div class="card" style="min-height: 320px; display: flex; flex-direction: column; justify-content: center;">
             <h1 class="headline">Peki beni seviyor musun?</h1>
             <div style="position: relative; height: 150px; margin-top: 20px;">
-                <button class="btn" onclick="victory()" style="position: relative; z-index: 2;">Evet ❤️</button>
+                <button class="btn" onclick="victory()" style="position: relative; z-index: 20;">Evet ❤️</button>
                 <button class="btn" id="no-btn" onmouseover="dodge()" ontouchstart="dodge()" style="background: rgba(255,255,255,0.1); border: 1px solid white;">Hayır</button>
             </div>
         </div>
@@ -176,12 +213,11 @@
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
 
-        // Arka Plan
         let stars = [];
         function initStars() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            stars = Array(100).fill().map(() => ({
+            stars = Array(80).fill().map(() => ({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
                 size: Math.random() * 2,
@@ -190,7 +226,7 @@
         }
         function draw() {
             ctx.clearRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(255,255,255,0.4)";
+            ctx.fillStyle = "rgba(255,255,255,0.3)";
             stars.forEach(s => {
                 ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
                 s.y -= s.speed; if(s.y < 0) s.y = canvas.height;
@@ -202,7 +238,6 @@
         function loadingSequence() {
             const btn = document.getElementById('main-start-btn');
             btn.innerText = "Oyun Yükleniyor...";
-            btn.style.opacity = "0.6";
             music.play().catch(() => {});
             setTimeout(() => {
                 document.getElementById('entry-screen').style.opacity = '0';
@@ -219,35 +254,31 @@
         }
 
         function burstEffect(x, y) {
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < 10; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
-                p.innerHTML = ['✨', '💜', '🌸'][Math.floor(Math.random() * 3)];
-                p.style.left = x + 'px';
-                p.style.top = y + 'px';
+                p.innerHTML = ['✨', '💜'][Math.floor(Math.random()*2)];
+                p.style.left = x + 'px'; p.style.top = y + 'px';
                 document.body.appendChild(p);
-
-                const angle = Math.random() * Math.PI * 2;
-                const dist = Math.random() * 120 + 60;
-                
+                const a = Math.random()*Math.PI*2;
+                const d = Math.random()*100+50;
                 p.animate([
-                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                    { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
-                ], { duration: 800, easing: 'ease-out' }).onfinish = () => p.remove();
+                    { transform: 'translate(0,0) scale(1)', opacity: 1 },
+                    { transform: `translate(${Math.cos(a)*d}px, ${Math.sin(a)*d}px) scale(0)`, opacity: 0 }
+                ], { duration: 700 }).onfinish = () => p.remove();
             }
         }
 
         function startPlane() {
             setActive(null);
             const wrap = document.getElementById('plane-wrap');
-            const img = document.getElementById('plane-img');
             wrap.style.display = 'block';
             let x = -350;
             const flight = setInterval(() => {
                 x += 8;
-                img.style.left = x + 'px';
-                if(x > window.innerWidth / 3) document.getElementById('p-txt').style.opacity = '1';
-                if(x > window.innerWidth + 350) {
+                document.getElementById('plane-img').style.left = x + 'px';
+                if(x > window.innerWidth/3) document.getElementById('p-txt').style.opacity = '1';
+                if(x > window.innerWidth+350) {
                     clearInterval(flight);
                     wrap.style.display = 'none';
                     initHeartGame();
@@ -258,33 +289,23 @@
         let heartsLeft = 15;
         function initHeartGame() {
             document.getElementById('ui').style.display = 'block';
-            for(let i=0; i<15; i++) setTimeout(spawnHeart, i * 300);
+            for(let i=0; i<15; i++) setTimeout(spawnHeart, i*300);
         }
 
         function spawnHeart() {
             const h = document.createElement('div');
-            h.className = 'heart';
-            h.innerHTML = '💜';
-            h.style.left = (Math.random() * 70 + 15) + 'vw';
-            h.style.top = (Math.random() * 60 + 20) + 'vh';
-            // Her kalp için rastgele animasyon gecikmesi (daha doğal durması için)
-            h.style.animationDelay = `${Math.random() * 2}s, ${Math.random() * 1}s`;
-
-            const clickAction = (e) => {
+            h.className = 'heart'; h.innerHTML = '💜';
+            h.style.left = (Math.random()*70+15)+'vw'; h.style.top = (Math.random()*60+20)+'vh';
+            h.style.animationDelay = `${Math.random()*2}s`;
+            const action = (e) => {
                 const cx = e.touches ? e.touches[0].clientX : e.clientX;
                 const cy = e.touches ? e.touches[0].clientY : e.clientY;
-                pop.currentTime = 0; pop.play();
-                burstEffect(cx, cy);
-                h.remove();
-                heartsLeft--;
-                document.getElementById('cnt').innerText = heartsLeft;
-                if(heartsLeft === 0) {
-                    document.getElementById('ui').style.display = 'none';
-                    setTimeout(startStory, 800);
-                }
+                pop.currentTime=0; pop.play(); burstEffect(cx, cy); h.remove();
+                heartsLeft--; document.getElementById('cnt').innerText = heartsLeft;
+                if(heartsLeft===0) { document.getElementById('ui').style.display='none'; setTimeout(startStory, 800); }
             };
-            h.addEventListener('touchstart', (e) => { e.preventDefault(); clickAction(e); });
-            h.addEventListener('mousedown', clickAction);
+            h.addEventListener('touchstart', (e) => { e.preventDefault(); action(e); });
+            h.addEventListener('mousedown', action);
             document.body.appendChild(h);
         }
 
@@ -310,23 +331,57 @@
         function dodge() {
             const btn = document.getElementById('no-btn');
             btn.style.position = 'fixed';
-            btn.style.left = Math.random() * (window.innerWidth - 100) + 'px';
-            btn.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+            btn.style.left = Math.random()*(window.innerWidth-100)+'px';
+            btn.style.top = Math.random()*(window.innerHeight-50)+'px';
+        }
+
+        // FİNAL: Uçaklar ve Pankartlar
+        function createVictoryPlane() {
+            const container = document.createElement('div');
+            container.className = 'victory-plane';
+            
+            const plane = document.createElement('img');
+            plane.src = 'ucak.png';
+            
+            const banner = document.createElement('div');
+            banner.className = 'banner';
+            banner.innerText = 'Love ❤️';
+            
+            container.appendChild(plane);
+            container.appendChild(banner);
+            document.body.appendChild(container);
+
+            const startY = Math.random() * (window.innerHeight - 100) + 50;
+            const speed = Math.random() * 3 + 4;
+            let x = -400;
+
+            const fly = setInterval(() => {
+                x += speed;
+                container.style.left = x + 'px';
+                container.style.top = startY + 'px';
+                if (x > window.innerWidth + 500) {
+                    clearInterval(fly);
+                    container.remove();
+                }
+            }, 16);
         }
 
         function victory() {
             setActive('s4');
+            // Sürekli yağmur gibi yağan kalpler
             setInterval(() => {
                 const p = document.createElement('div');
-                p.innerHTML = '💜';
-                p.style.position = 'fixed';
-                p.style.left = Math.random() * 100 + 'vw';
-                p.style.top = '-50px';
-                p.style.transition = '4s linear';
+                p.innerHTML = '💜'; p.style.position = 'fixed';
+                p.style.left = Math.random()*100+'vw'; p.style.top = '-50px';
+                p.style.transition = '4s linear'; p.style.zIndex = "1";
                 document.body.appendChild(p);
                 setTimeout(() => p.style.top = '110vh', 20);
                 setTimeout(() => p.remove(), 4000);
-            }, 100);
+            }, 150);
+
+            // Belirli aralıklarla geçen pankartlı uçaklar
+            createVictoryPlane();
+            setInterval(createVictoryPlane, 3000);
         }
     </script>
 </body>
