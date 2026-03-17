@@ -3,265 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Öykü'ye Sürpriz ✨</title>
+    <title>Öykü İçin Özel ✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ana-mor: #7b2cbf;
-            --orta-mor: #9d4edd;
-            --acik-mor: #e0aaff;
-            --bg-mor: #240046;
-            --yazi-renk: #ffffff;
+            --deep-purple: #240046;
+            --vibrant-purple: #7b2cbf;
+            --soft-purple: #e0aaff;
+            --glass: rgba(255, 255, 255, 0.1);
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-mor);
-            color: var(--yazi-renk);
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at center, #3c096c 0%, #10002b 100%);
+            color: white;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Ortak Konteyner */
-        .game-container {
-            width: 90%;
-            max-width: 500px;
+        /* Dinamik Arka Plan */
+        #stars {
+            position: fixed;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Glassmorphism Panel */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 40px 20px;
             text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            width: 85%;
+            max-width: 450px;
             z-index: 10;
+            position: relative;
         }
 
-        /* Diyalog Kutusu */
-        .dialog-box {
-            background: rgba(123, 44, 191, 0.2);
-            border: 2px solid var(--orta-mor);
-            border-radius: 20px;
-            padding: 25px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-        }
+        h1 { font-family: 'Dancing Script', cursive; font-size: 2.5rem; margin-bottom: 10px; color: var(--soft-purple); }
+        p { line-height: 1.6; font-weight: 300; font-size: 1.1rem; }
 
-        h1, p { margin: 10px 0; }
-
-        /* Butonlar */
+        /* Gelişmiş Buton Tasarımı */
         .btn {
-            background: var(--ana-mor);
+            background: linear-gradient(45deg, #7b2cbf, #9d4edd);
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: 15px 40px;
+            font-size: 1.1rem;
             border-radius: 50px;
             cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 5px 15px rgba(123, 44, 191, 0.4);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(123, 44, 191, 0.3);
+            margin-top: 20px;
         }
 
-        .btn:hover { background: var(--orta-mor); transform: scale(1.05); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(123, 44, 191, 0.5); }
 
         /* Uçak Animasyonu */
-        #plane {
+        #plane-container {
             position: fixed;
-            width: 120px;
-            left: -150px;
-            top: 40%;
+            left: -200px;
+            top: 35%;
             z-index: 100;
             display: none;
+            transition: transform 0.1s;
         }
 
-        @keyframes flyAcross {
-            0% { left: -150px; transform: translateY(0) rotate(0); }
-            50% { transform: translateY(-50px) rotate(10deg); }
-            100% { left: 110%; transform: translateY(0) rotate(0); }
+        #plane-img {
+            width: 250px; /* Daha büyük uçak */
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+            animation: planeWobble 2s ease-in-out infinite;
         }
 
-        /* Kalp Patlatma Oyunu */
+        @keyframes planeWobble {
+            0%, 100% { transform: rotate(0deg) translateY(0); }
+            50% { transform: rotate(5deg) translateY(-20px); }
+        }
+
+        /* Kalp Patlatma Alanı */
+        .heart {
+            position: absolute;
+            font-size: 45px;
+            cursor: pointer;
+            user-select: none;
+            animation: floatHeart 4s ease-in-out infinite;
+            z-index: 50;
+        }
+
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
+        }
+
         #counter {
             position: fixed;
-            top: 20px;
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--acik-mor);
+            top: 30px;
+            background: var(--glass);
+            padding: 10px 25px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.2);
             display: none;
         }
 
-        .pop-heart {
-            position: absolute;
-            font-size: 40px;
-            cursor: pointer;
-            user-select: none;
-            transition: transform 0.1s;
-        }
-        .pop-heart:active { transform: scale(0.5); }
-
-        /* Karakter Sahnesi */
-        #characterStage { display: none; }
+        /* Final Sahnesi */
         .char-img {
-            width: 180px;
-            margin-bottom: 15px;
-            animation: float 3s ease-in-out infinite;
+            width: 220px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4));
+            animation: charFloat 3s ease-in-out infinite;
         }
 
-        @keyframes float {
+        @keyframes charFloat {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-15px); }
         }
-
-        #noBtn { position: relative; transition: 0.1s; }
-
     </style>
 </head>
 <body>
 
-    <audio id="music" src="music.mp3"></audio>
-    <img src="ucak.png" id="plane" alt="Uçak">
-    <div id="counter">Kalan Kalp: <span id="countNum">15</span></div>
+    <audio id="music" src="music.mp3" loop></audio>
+    <canvas id="stars"></canvas>
+    
+    <div id="counter">Kalan Sevgi: <span id="countNum">15</span></div>
 
-    <div id="stage1" class="game-container">
-        <div class="dialog-box">
-            <p>Merhaba <b>Öykü</b>, sana ufak bir sürpriz hazırladım. ✨</p>
-            <p>Görmek ister misin?</p>
-        </div>
-        <button class="btn" onclick="startPlane()">İsterim ❤️</button>
+    <div id="plane-container">
+        <img src="ucak.png" id="plane-img">
     </div>
 
-    <div id="stage2" class="game-container" style="display:none;">
-        <div class="dialog-box">
-            <p id="planeMsg">O halde oyun başlıyor Birtanem...</p>
-        </div>
+    <div id="stage1" class="glass-panel">
+        <h1>Merhaba Öykü...</h1>
+        <p>Sana ufak bir sürpriz hazırladım. Görmek ister misin?</p>
+        <button class="btn" onclick="triggerPlane()">İsterim ❤️</button>
     </div>
 
-    <div id="gameArea"></div>
+    <div id="stage2" class="glass-panel" style="display:none;">
+        <p style="font-size: 1.5rem; font-weight: 600;">O halde oyun başlıyor Birtanem...</p>
+    </div>
 
-    <div id="characterStage" class="game-container">
+    <div id="finalStage" class="glass-panel" style="display:none;">
         <img src="karakter.png" class="char-img">
-        <div class="dialog-box">
-            <p id="finalMsg"></p>
-        </div>
-        <div id="finalButtons"></div>
+        <p id="dialogText"></p>
+        <div id="btnArea"></div>
     </div>
 
     <script>
-        const plane = document.getElementById('plane');
-        const stage1 = document.getElementById('stage1');
-        const stage2 = document.getElementById('stage2');
-        const charStage = document.getElementById('characterStage');
-        const finalMsg = document.getElementById('finalMsg');
-        const finalButtons = document.getElementById('finalButtons');
-        const music = document.getElementById('music');
-        const counter = document.getElementById('counter');
-        const countNum = document.getElementById('countNum');
+        // Arka Plan Yıldızları
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
+        const stars = Array(150).fill().map(() => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 2,
+            opacity: Math.random()
+        }));
+
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(s => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+                s.opacity += (Math.random() - 0.5) * 0.05;
+            });
+            requestAnimationFrame(drawStars);
+        }
+        drawStars();
+
+        // Akış Yönetimi
         let heartsLeft = 15;
+        const music = document.getElementById('music');
 
-        // 1. Uçak Sahnesi
-        function startPlane() {
-            stage1.style.display = 'none';
-            stage2.style.display = 'block';
+        function triggerPlane() {
+            document.getElementById('stage1').style.display = 'none';
+            document.getElementById('stage2').style.display = 'block';
+            
+            const plane = document.getElementById('plane-container');
             plane.style.display = 'block';
-            plane.style.animation = "flyAcross 3s linear forwards";
-
-            setTimeout(() => {
-                startHeartGame();
-            }, 3000);
+            
+            // Uçağı soldan sağa uçur
+            let pos = -300;
+            const flight = setInterval(() => {
+                pos += 8;
+                plane.style.left = pos + 'px';
+                if(pos > window.innerWidth + 300) {
+                    clearInterval(flight);
+                    startHeartGame();
+                }
+            }, 16);
         }
 
-        // 2. Kalp Patlatma Oyunu
         function startHeartGame() {
-            stage2.style.display = 'none';
-            counter.style.display = 'block';
+            document.getElementById('stage2').style.display = 'none';
+            document.getElementById('counter').style.display = 'block';
             
             for(let i=0; i<15; i++) {
-                createHeart();
+                setTimeout(createGameHeart, i * 200);
             }
         }
 
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.className = 'pop-heart';
-            heart.innerHTML = '💜';
-            heart.style.left = Math.random() * 80 + 10 + 'vw';
-            heart.style.top = Math.random() * 80 + 10 + 'vh';
+        function createGameHeart() {
+            const h = document.createElement('div');
+            h.className = 'heart';
+            h.innerHTML = '💜';
+            h.style.left = Math.random() * 80 + 10 + 'vw';
+            h.style.top = Math.random() * 70 + 15 + 'vh';
+            h.style.animationDelay = Math.random() * 2 + 's';
             
-            heart.onclick = function() {
-                heart.style.transform = "scale(0)";
-                setTimeout(() => heart.remove(), 100);
+            h.onclick = () => {
+                h.style.transform = 'scale(2)';
+                h.style.opacity = '0';
+                setTimeout(() => h.remove(), 300);
                 heartsLeft--;
-                countNum.innerText = heartsLeft;
-                if(heartsLeft === 0) showCharacter();
+                document.getElementById('countNum').innerText = heartsLeft;
+                if(heartsLeft === 0) runFinal();
             };
-            document.body.appendChild(heart);
+            document.body.appendChild(h);
         }
 
-        // 3. Karakter ve Diyaloglar
-        const texts = [
+        const lines = [
             "Kırk altı tane uçuşan kalp olsun isterdim.",
-            "Fakat o çok fazla.",
+            "Fakat o çok fazla...",
             "Bizi ayrı bıraktığın her gün için 15 tane kalp koydum.",
             "Peki beğendin mi?"
         ];
-        let textIdx = 0;
+        let currentLine = 0;
 
-        function showCharacter() {
-            counter.style.display = 'none';
-            charStage.style.display = 'block';
+        function runFinal() {
+            document.getElementById('counter').style.display = 'none';
+            document.getElementById('finalStage').style.display = 'block';
             music.play();
-            nextText();
+            updateText();
         }
 
-        function nextText() {
-            if(textIdx < texts.length) {
-                finalMsg.innerText = texts[textIdx];
-                
-                if(textIdx === texts.length - 1) {
-                    // Beğendim / Beğenmedim butonları
-                    finalButtons.innerHTML = `
-                        <button class="btn" onclick="askLove()">Beğendim 😊</button>
-                        <button class="btn" onclick="askLove()" style="margin-left:10px; background:#5a189a;">Beğenmedim 🙄</button>
-                    `;
-                } else {
-                    finalButtons.innerHTML = `<button class="btn" onclick="nextText()">Devam et...</button>`;
-                    textIdx++;
-                }
+        function updateText() {
+            const txt = document.getElementById('dialogText');
+            const btnArea = document.getElementById('btnArea');
+            txt.innerText = lines[currentLine];
+
+            if(currentLine < lines.length - 1) {
+                btnArea.innerHTML = `<button class="btn" onclick="currentLine++; updateText()">Devam Et ✨</button>`;
+            } else {
+                btnArea.innerHTML = `
+                    <button class="btn" onclick="lastQuestion()">Beğendim 😊</button>
+                    <button class="btn" onclick="lastQuestion()" style="margin-left:10px; opacity:0.7;">Beğenmedim</button>
+                `;
             }
         }
 
-        // 4. Final Sorusu: Beni Seviyor musun?
-        function askLove() {
-            finalMsg.innerText = "Peki beni seviyor musun? 🥺";
-            finalButtons.innerHTML = `
-                <button class="btn" id="yesBtn" onclick="celebrate()">Evet ❤️</button>
-                <button class="btn" id="noBtn" onmouseover="runAway()" onclick="runAway()" style="margin-left:10px; background:#5a189a;">Hayır</button>
+        function lastQuestion() {
+            document.getElementById('dialogText').innerText = "Peki beni seviyor musun? 🥺";
+            document.getElementById('btnArea').innerHTML = `
+                <button class="btn" onclick="celebrate()">Evet ❤️</button>
+                <button class="btn" id="noBtn" onmouseover="moveNo()" style="margin-left:10px;">Hayır</button>
             `;
         }
 
-        function runAway() {
-            const noBtn = document.getElementById('noBtn');
-            const x = Math.random() * (window.innerWidth - 100);
-            const y = Math.random() * (window.innerHeight - 50);
-            noBtn.style.position = 'fixed';
-            noBtn.style.left = x + 'px';
-            noBtn.style.top = y + 'px';
+        function moveNo() {
+            const btn = document.getElementById('noBtn');
+            btn.style.position = 'fixed';
+            btn.style.left = Math.random() * 70 + 15 + 'vw';
+            btn.style.top = Math.random() * 70 + 15 + 'vh';
         }
 
         function celebrate() {
-            finalMsg.innerHTML = "OLEY! 🎉<br>Seni çok seviyorum Öykü!";
-            finalButtons.innerHTML = "";
-            // Konfeti niyetine kalpler yağdırabilirsin
-            setInterval(() => {
-                const h = document.createElement('div');
-                h.innerHTML = '💜';
-                h.style.position = 'fixed';
-                h.style.left = Math.random() * 100 + 'vw';
-                h.style.top = '-50px';
-                h.style.fontSize = '24px';
-                h.style.transition = '3s linear';
-                document.body.appendChild(h);
-                setTimeout(() => { h.style.top = '110vh'; h.style.transform = 'rotate(360deg)'; }, 10);
-                setTimeout(() => h.remove(), 3000);
-            }, 200);
+            document.getElementById('dialogText').innerHTML = "<span style='font-size:2rem;'>OLEY! 🎉</span><br>Seni çok seviyorum Öykü!";
+            document.getElementById('btnArea').innerHTML = "";
+            // Patlama efekti
+            for(let i=0; i<50; i++) {
+                setTimeout(() => {
+                    const h = document.createElement('div');
+                    h.innerHTML = '❤️';
+                    h.style.position = 'fixed';
+                    h.style.left = Math.random() * 100 + 'vw';
+                    h.style.top = '-50px';
+                    h.style.transition = '3s linear';
+                    document.body.appendChild(h);
+                    setTimeout(() => h.style.top = '110vh', 10);
+                }, i * 50);
+            }
         }
     </script>
 </body>
