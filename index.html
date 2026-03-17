@@ -8,20 +8,17 @@
 <style>
   :root {
     --bg:      #0d0018;
-    --deep:    #1a0033;
-    --plum:    #3b0068;
     --violet:  #7209b7;
-    --mid:     #9d4edd;
+    --mid:      #9d4edd;
     --lavender:#c77dff;
-    --blush:   #e8b4ff;
-    --white:   #f5eeff;
-    --gold:    #ffcf77;
+    --blush:    #e8b4ff;
+    --white:    #f5eeff;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body {
-    width: 100%; height: 100%;
+  body {
+    width: 100%; height: 100vh;
     background: var(--bg);
     color: var(--white);
     font-family: 'Nunito', sans-serif;
@@ -29,18 +26,8 @@
     user-select: none;
   }
 
-  /* ── Starfield ── */
-  #stars {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  }
+  #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-  /* ── Vignette ── */
-  #vig {
-    position: fixed; inset: 0; z-index: 1; pointer-events: none;
-    background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,.65) 100%);
-  }
-
-  /* ── Stages ── */
   .stage {
     position: fixed; inset: 0; z-index: 10;
     display: flex; flex-direction: column;
@@ -51,437 +38,262 @@
   }
   .stage.on { opacity: 1; pointer-events: all; }
 
-  /* ── Glass card ── */
   .card {
     background: linear-gradient(145deg, rgba(58,0,104,.75), rgba(114,9,183,.3));
     border: 1px solid rgba(199,125,255,.25);
     border-radius: 28px;
-    padding: 40px 44px;
-    backdrop-filter: blur(22px);
-    box-shadow: 0 24px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.07);
+    padding: 40px;
+    backdrop-filter: blur(20px);
     text-align: center;
     max-width: 480px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
 
-  .eyebrow {
-    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
-    color: var(--lavender); opacity: .75; margin-bottom: 14px;
-    font-weight: 600;
-  }
-
-  .headline {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 7vw, 46px);
-    font-style: italic; font-weight: 400;
-    color: var(--white); line-height: 1.25; margin-bottom: 12px;
-  }
-
-  .body-text {
-    font-size: 16px; font-weight: 300;
-    color: var(--blush); line-height: 1.7; margin-bottom: 30px;
-  }
-
-  /* ── Character ── */
   .char {
-    width: min(160px, 38vw); margin-bottom: 18px;
+    width: min(160px, 38vw); margin-bottom: 20px;
     animation: bob 3.5s ease-in-out infinite;
-    filter: drop-shadow(0 0 22px rgba(199,125,255,.45));
-    display: block;
+    filter: drop-shadow(0 0 20px rgba(199,125,255,.4));
   }
-  @keyframes bob {
-    0%,100% { transform: translateY(0); }
-    50%      { transform: translateY(-12px); }
-  }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 
-  /* ── Dialogue text ── */
   .dlg-text {
     font-family: 'Playfair Display', serif;
     font-size: clamp(18px, 4.5vw, 26px);
     font-style: italic;
-    color: var(--white); line-height: 1.55;
-    min-height: 80px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 28px;
-    transition: opacity .35s, transform .35s;
+    min-height: 90px;
+    margin-bottom: 30px;
+    transition: opacity 0.4s ease, transform 0.4s ease;
   }
-
-  /* ── Buttons ── */
-  .btn-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
   .btn {
     font-family: 'Nunito', sans-serif;
     font-size: 16px; font-weight: 700;
     padding: 14px 34px; border-radius: 100px; border: none;
-    cursor: pointer; transition: transform .2s, box-shadow .2s;
-    letter-spacing: .3px;
+    cursor: pointer; transition: all .2s;
   }
   .btn-primary {
     background: linear-gradient(135deg, var(--violet), #b53aff);
     color: #fff;
-    box-shadow: 0 8px 28px rgba(114,9,183,.55);
+    box-shadow: 0 8px 25px rgba(114,9,183,.5);
   }
-  .btn-primary:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 14px 38px rgba(114,9,183,.7); }
   .btn-ghost {
     background: rgba(114,9,183,.2);
     border: 1px solid rgba(199,125,255,.35);
     color: var(--blush);
-    box-shadow: 0 4px 18px rgba(0,0,0,.3);
-  }
-  .btn-ghost:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(114,9,183,.4); }
-
-  /* ── Plane ── */
-  #plane-wrap {
-    position: fixed; inset: 0; z-index: 80; pointer-events: none;
-    display: none;
-  }
-  #plane-el {
-    position: absolute;
-    width: min(340px, 62vw);
-    left: -400px; top: 50%;
-    transform: translateY(-50%);
-    filter: drop-shadow(0 0 28px rgba(199,125,255,.55));
-    font-size: min(200px, 40vw);
-    line-height: 1;
   }
 
-  /* Plane message overlay */
-  #plane-msg {
-    position: fixed; bottom: 14%; width: 100%; text-align: center;
-    z-index: 81; pointer-events: none;
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(18px, 4.5vw, 26px);
-    font-style: italic; color: var(--blush);
-    opacity: 0; transition: opacity .8s;
-    text-shadow: 0 0 30px rgba(199,125,255,.6);
-  }
+  /* Uçak */
+  #plane-wrap { position: fixed; inset: 0; z-index: 80; pointer-events: none; display: none; }
+  #plane-el { position: absolute; width: min(340px, 62vw); left: -400px; top: 50%; }
 
-  /* trail */
-  .trail {
-    position: fixed; pointer-events: none; z-index: 79;
-    font-size: 22px; opacity: .8;
-    animation: trailFade 1.4s ease forwards;
-  }
-  @keyframes trailFade { to { opacity: 0; transform: scale(.2) translateY(-20px); } }
-
-  /* ── Heart game ── */
+  /* Kalp Oyunu */
   #counter {
-    position: fixed; top: 22px; left: 0; right: 0; z-index: 200;
-    text-align: center; font-size: 20px; font-weight: 700;
-    color: var(--lavender); display: none;
-    text-shadow: 0 0 20px rgba(199,125,255,.5);
+    position: fixed; top: 22px; width: 100%; text-align: center;
+    z-index: 200; font-size: 20px; color: var(--lavender); display: none;
   }
-  #counter span { color: var(--blush); }
 
   .heart-btn {
-    position: fixed; z-index: 150; cursor: pointer; border: none;
-    background: none; font-size: clamp(42px, 9vw, 60px); line-height: 1;
+    position: fixed; z-index: 150; cursor: pointer; border: none; background: none;
+    font-size: clamp(45px, 10vw, 65px);
     animation: heartFloat 3s ease-in-out infinite;
-    filter: drop-shadow(0 0 10px rgba(199,125,255,.5));
-    transition: transform .12s, opacity .12s;
-    padding: 4px;
   }
-  @keyframes heartFloat {
-    0%,100% { transform: translateY(0) rotate(-6deg); }
-    50%      { transform: translateY(-14px) rotate(6deg); }
-  }
+  @keyframes heartFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-  /* ── Burst particles ── */
-  .spark {
-    position: fixed; pointer-events: none; z-index: 160;
-    font-size: 16px; transition: .55s ease;
-  }
-
-  /* ── No button runaway ── */
-  #no-btn {
-    position: fixed !important;
-    transition: left .12s, top .12s;
-  }
-
-  /* ── Celebrate rain ── */
-  .rain-item {
-    position: fixed; pointer-events: none; z-index: 300;
-    animation: fall linear forwards;
-  }
-  @keyframes fall {
-    from { transform: translateY(-60px) rotate(0deg); opacity: 1; }
-    to   { transform: translateY(110vh) rotate(720deg); opacity: .3; }
-  }
-
-  /* ── Final screen ── */
-  #final-headline {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(36px, 9vw, 64px);
-    font-style: italic; font-weight: 700;
-    line-height: 1.2; text-align: center;
-    color: var(--white);
-    text-shadow: 0 0 60px rgba(199,125,255,.8), 0 0 120px rgba(114,9,183,.5);
-    animation: pulseGlow 2.5s ease-in-out infinite;
-  }
-  @keyframes pulseGlow {
-    0%,100% { text-shadow: 0 0 60px rgba(199,125,255,.8), 0 0 120px rgba(114,9,183,.5); }
-    50%      { text-shadow: 0 0 90px rgba(199,125,255,1),  0 0 180px rgba(114,9,183,.8); }
-  }
-  #final-sub {
-    margin-top: 12px; font-size: 15px; color: var(--lavender);
-    letter-spacing: 3px; text-transform: uppercase; text-align: center;
-  }
+  #no-btn { position: fixed !important; transition: 0.1s; }
 </style>
 </head>
 <body>
 
 <canvas id="stars"></canvas>
-<div id="vig"></div>
 <audio id="music" src="music.mp3" loop></audio>
-
-<!-- Plane layer -->
-<div id="plane-wrap">
-  <img id="plane-img" src="ucak.png" alt="uçak" style="position:absolute;width:min(340px,62vw);left:-400px;top:50%;transform:translateY(-50%);filter:drop-shadow(0 0 28px rgba(199,125,255,.55));"
-       onerror="this.style.display='none';document.getElementById('plane-emoji').style.display='block'">
-  <div id="plane-emoji" style="display:none;position:absolute;left:-400px;top:50%;transform:translateY(-50%);font-size:min(180px,38vw);line-height:1;">✈️</div>
+<audio id="popSound" src="pop.mp3"></audio> <div id="plane-wrap">
+    <img id="plane-el" src="ucak.png" alt="uçak">
 </div>
-<div id="plane-msg">O halde oyun başlıyor Birtanem…</div>
 
-<!-- Counter -->
-<div id="counter">💜 Kalan kalp: <span id="cnt">15</span></div>
+<div id="counter">💜 Kalan Sevgi: <span id="cnt">15</span></div>
 
-<!-- ══ STAGE 1: Welcome ══ -->
 <div id="s1" class="stage on">
-  <img src="karakter.png" class="char"
-       onerror="this.outerHTML='<div style=\'font-size:80px;margin-bottom:18px;\'>🧸</div>'">
+  <img src="karakter.png" class="char">
   <div class="card">
-    <div class="eyebrow">✦ sana özel ✦</div>
-    <div class="headline">Merhaba,<br>Öykü.</div>
-    <div class="body-text">Sana ufak bir sürpriz hazırladım.<br>Görmek ister misin?</div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="goPlane()">İsterim ❤️</button>
-    </div>
+    <h2 style="font-family:'Playfair Display'; font-size: 32px; margin-bottom: 10px;">Merhaba Öykü.</h2>
+    <p style="color:var(--blush); margin-bottom: 25px;">Sana özel ufak bir sürprizim var...</p>
+    <button class="btn btn-primary" onclick="goPlane()">İsterim ❤️</button>
   </div>
 </div>
 
-<!-- ══ STAGE 2: blank during plane ══ -->
-<div id="s2" class="stage"></div>
-
-<!-- ══ STAGE 3: Dialogue ══ -->
 <div id="s3" class="stage">
-  <img src="karakter.png" class="char"
-       onerror="this.outerHTML='<div style=\'font-size:80px;margin-bottom:18px;\'>🧸</div>'">
+  <img src="karakter.png" class="char">
   <div class="card">
     <div class="dlg-text" id="dlg-text"></div>
-    <div class="btn-row" id="dlg-btns"></div>
+    <div id="dlg-btns" style="opacity:0; transition: opacity 0.3s;"></div>
   </div>
 </div>
 
-<!-- ══ STAGE 4: Love question ══ -->
 <div id="s4" class="stage">
-  <img src="karakter.png" class="char"
-       onerror="this.outerHTML='<div style=\'font-size:80px;margin-bottom:18px;\'>🧸</div>'">
+  <img src="karakter.png" class="char">
   <div class="card">
-    <div class="dlg-text" style="min-height:auto;margin-bottom:28px;">Peki beni seviyor musun? 🥺</div>
-    <div class="btn-row" style="position:relative;min-height:60px;">
+    <div class="dlg-text">Peki beni seviyor musun? 🥺</div>
+    <div style="display:flex; gap:15px; justify-content:center;">
       <button class="btn btn-primary" onclick="celebrate()">Evet ❤️</button>
-      <button class="btn btn-ghost" id="no-btn" onmouseenter="runAway()" ontouchstart="runAway(event)">Hayır 🙄</button>
+      <button class="btn btn-ghost" id="no-btn" onmouseenter="runAway()">Hayır 🙄</button>
     </div>
   </div>
 </div>
 
-<!-- ══ STAGE 5: Celebrate ══ -->
 <div id="s5" class="stage">
-  <div id="final-headline">OLEY! 🎉<br>Seni çok seviyorum,<br>Öykü!</div>
-  <div id="final-sub">♾ &nbsp; sonsuza dek &nbsp; ♾</div>
+  <h1 style="font-family:'Playfair Display'; font-size: 48px; text-align:center;">OLEY! 🎉<br>Seni Çok Seviyorum Öykü!</h1>
 </div>
 
 <script>
-/* ══ Stars ══ */
-(function(){
-  const c = document.getElementById('stars');
-  const cx = c.getContext('2d');
-  let W, H, st = [];
-  function resize(){ W = c.width = innerWidth; H = c.height = innerHeight; }
-  function init(){
-    st = [];
-    for(let i=0;i<200;i++) st.push({
-      x: Math.random()*W, y: Math.random()*H,
-      r: Math.random()*1.4+.3, o: Math.random()*.6+.2,
-      sp: Math.random()*.4+.05, ph: Math.random()*Math.PI*2
-    });
-  }
-  function draw(t){
-    cx.clearRect(0,0,W,H);
-    st.forEach(s=>{
-      const a = s.o*(.6+.4*Math.sin(t*.001*s.sp+s.ph));
-      cx.beginPath(); cx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      cx.fillStyle=`rgba(220,190,255,${a})`; cx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  addEventListener('resize',()=>{ resize(); init(); });
-  resize(); init(); draw(0);
-})();
+/* Yıldızlar */
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let w, h, stars = [];
+function initStars() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+  stars = Array(150).fill().map(() => ({
+    x: Math.random() * w, y: Math.random() * h,
+    r: Math.random() * 1.5, o: Math.random()
+  }));
+}
+function drawStars() {
+  ctx.clearRect(0, 0, w, h);
+  stars.forEach(s => {
+    ctx.fillStyle = `rgba(255,255,255,${s.o})`;
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+    s.o += (Math.random() - 0.5) * 0.05;
+    if(s.o < 0) s.o = 0; if(s.o > 1) s.o = 1;
+  });
+  requestAnimationFrame(drawStars);
+}
+window.addEventListener('resize', initStars);
+initStars(); drawStars();
 
-/* ══ Stage switcher ══ */
-function show(id){
-  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('on'));
+/* Sahne Yönetimi */
+function show(id) {
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('on'));
   if(id) document.getElementById(id).classList.add('on');
 }
 
-/* ══ STAGE 1 → Plane ══ */
-function goPlane(){
-  show('s2');
-  const wrap     = document.getElementById('plane-wrap');
-  const planeImg = document.getElementById('plane-img');
-  const planeEmj = document.getElementById('plane-emoji');
-  const msg      = document.getElementById('plane-msg');
-
-  // pick whichever element is visible
-  const el = planeImg.style.display !== 'none' ? planeImg : planeEmj;
-  el.style.display = 'block';
-  wrap.style.display = 'block';
-
-  let startT = null;
-  const dur  = 4200;
-  const endX = innerWidth + 420;
-
-  function anim(ts){
-    if(!startT) startT = ts;
-    const p = Math.min((ts-startT)/dur, 1);
-    const e = p<.5 ? 2*p*p : -1+(4-2*p)*p;
-    const x    = -400 + e*(endX+400);
-    const yOff = Math.sin(p*Math.PI)*-55;
-    const rot  = Math.sin(p*Math.PI*4)*4;
-
-    el.style.left      = x+'px';
-    el.style.top       = `calc(50% + ${yOff}px)`;
-    el.style.transform = `translateY(-50%) rotate(${rot}deg)`;
-
-    if(Math.random()<.1){
-      const t = document.createElement('div');
-      t.className = 'trail';
-      t.innerText = '💜';
-      t.style.cssText = `left:${x-10}px;top:calc(50% + ${yOff+14}px)`;
-      document.body.appendChild(t);
-      setTimeout(()=>t.remove(), 1400);
-    }
-
-    if(p >= .5) msg.style.opacity = '1';
-
-    if(p<1){ requestAnimationFrame(anim); }
-    else {
-      wrap.style.display='none';
-      msg.style.opacity='0';
-      setTimeout(startHearts, 400);
-    }
-  }
-  requestAnimationFrame(anim);
-}
-
-/* ══ HEART GAME ══ */
-let heartsLeft = 15;
-const heartEmojis = ['💜','💗','💖','💝','💓'];
-
-function startHearts(){
+/* Uçak Animasyonu */
+function goPlane() {
   show(null);
-  document.getElementById('counter').style.display='block';
-  for(let i=0;i<15;i++) setTimeout(()=>spawnHeart(), i*90);
+  const wrap = document.getElementById('plane-wrap');
+  const el = document.getElementById('plane-el');
+  wrap.style.display = 'block';
+  
+  let x = -400;
+  const anim = setInterval(() => {
+    x += 8;
+    el.style.left = x + 'px';
+    el.style.top = (50 + Math.sin(x/100)*5) + '%';
+    if(x > window.innerWidth + 400) {
+      clearInterval(anim);
+      wrap.style.display = 'none';
+      startHearts();
+    }
+  }, 16);
 }
 
-function spawnHeart(){
-  const btn = document.createElement('button');
-  btn.className = 'heart-btn';
-  btn.innerText = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
-  btn.style.left = (Math.random()*78+5)+'vw';
-  btn.style.top  = (Math.random()*62+20)+'vh';
-  btn.style.animationDelay    = (Math.random()*2)+'s';
-  btn.style.animationDuration = (2.2+Math.random()*1.5)+'s';
-  btn.onclick = ()=>popHeart(btn);
-  document.body.appendChild(btn);
+/* Kalp Oyunu */
+let hCount = 15;
+function startHearts() {
+  document.getElementById('counter').style.display = 'block';
+  for(let i=0; i<15; i++) setTimeout(spawnHeart, i*150);
 }
 
-function popHeart(el){
-  const colors = ['#c77dff','#f3c8f5','#ffcf77','#ff9ef5'];
-  const sparks  = ['✦','·','★','✧','•'];
-  for(let i=0;i<10;i++){
-    const sp = document.createElement('div');
-    sp.className = 'spark';
-    sp.innerText = sparks[Math.floor(Math.random()*sparks.length)];
-    sp.style.cssText = `left:${el.style.left};top:${el.style.top};color:${colors[Math.floor(Math.random()*colors.length)]}`;
-    document.body.appendChild(sp);
-    const ang  = (i/10)*360;
-    const dist = 38+Math.random()*55;
-    setTimeout(()=>{
-      sp.style.transform=`translate(${Math.cos(ang*Math.PI/180)*dist}px,${Math.sin(ang*Math.PI/180)*dist}px) scale(0)`;
-      sp.style.opacity='0';
-    },10);
-    setTimeout(()=>sp.remove(),600);
-  }
-  el.style.transform='scale(0)'; el.style.opacity='0'; el.style.pointerEvents='none';
-  setTimeout(()=>el.remove(),200);
-  heartsLeft--;
-  document.getElementById('cnt').innerText=heartsLeft;
-  if(heartsLeft===0) setTimeout(startDialogue,500);
+function spawnHeart() {
+  const b = document.createElement('button');
+  b.className = 'heart-btn';
+  b.innerHTML = ['💜','💖','💗'][Math.floor(Math.random()*3)];
+  b.style.left = (Math.random()*80 + 10) + 'vw';
+  b.style.top = (Math.random()*70 + 15) + 'vh';
+  b.onclick = () => {
+    // Ses Çal
+    const pop = document.getElementById('popSound');
+    pop.currentTime = 0; pop.play();
+    
+    b.style.transform = 'scale(0)';
+    setTimeout(() => b.remove(), 200);
+    hCount--;
+    document.getElementById('cnt').innerText = hCount;
+    if(hCount === 0) {
+      document.getElementById('counter').style.display = 'none';
+      setTimeout(startDialogue, 600);
+    }
+  };
+  document.body.appendChild(b);
 }
 
-/* ══ DIALOGUE ══ */
-const dialogues = [
+/* Diyaloglar */
+const lines = [
   "Kırk altı tane uçuşan kalp olsun isterdim.",
   "Fakat o çok fazla.",
   "Bizi ayrı bıraktığın her gün için 15 tane kalp koydum.",
   "Peki beğendin mi?"
 ];
-let dIdx = 0;
+let lIdx = 0;
+let isAnimating = false; // Karışıklığı önlemek için kilit
 
-function startDialogue(){
-  document.getElementById('counter').style.display='none';
-  const m = document.getElementById('music');
-  m.currentTime=0; m.play().catch(()=>{});
+function startDialogue() {
+  document.getElementById('music').play();
   show('s3');
   nextDlg();
 }
 
-function nextDlg(){
-  if(dIdx >= dialogues.length){ show('s4'); return; }
+function nextDlg() {
+  if(isAnimating) return; // Animasyon sürüyorsa tıklamayı reddet
+  if(lIdx >= lines.length) { show('s4'); return; }
 
-  const txt  = document.getElementById('dlg-text');
-  const btns = document.getElementById('dlg-btns');
+  const txt = document.getElementById('dlg-text');
+  const btnArea = document.getElementById('dlg-btns');
+  
+  isAnimating = true;
+  txt.style.opacity = '0';
+  txt.style.transform = 'translateY(10px)';
+  btnArea.style.opacity = '0';
 
-  txt.style.opacity='0'; txt.style.transform='translateY(8px)';
-  setTimeout(()=>{
-    txt.innerText = dialogues[dIdx];
-    txt.style.opacity='1'; txt.style.transform='translateY(0)';
-  }, 340);
-
-  const isLast = dIdx === dialogues.length-1;
-  btns.innerHTML = isLast
-    ? `<button class="btn btn-primary" onclick="nextDlg()">Beğendim 😊</button>
-       <button class="btn btn-ghost"   onclick="nextDlg()">Beğenmedim 🙄</button>`
-    : `<button class="btn btn-primary" onclick="nextDlg()">Devam et →</button>`;
-
-  dIdx++;
+  setTimeout(() => {
+    txt.innerText = lines[lIdx];
+    txt.style.opacity = '1';
+    txt.style.transform = 'translateY(0)';
+    
+    // Butonları metinden biraz sonra göster
+    setTimeout(() => {
+      const isLast = lIdx === lines.length - 1;
+      btnArea.innerHTML = isLast 
+        ? `<button class="btn btn-primary" onclick="nextDlg()">Beğendim 😊</button>
+           <button class="btn btn-ghost" onclick="nextDlg()" style="margin-left:10px;">Beğenmedim</button>`
+        : `<button class="btn btn-primary" onclick="nextDlg()">Devam Et →</button>`;
+      btnArea.style.opacity = '1';
+      isAnimating = false; // Kilidi aç
+      lIdx++;
+    }, 400);
+  }, 400);
 }
 
-/* ══ NO BUTTON RUNAWAY ══ */
-let noMoves=0;
-function runAway(e){
-  if(e) e.preventDefault();
-  const btn=document.getElementById('no-btn');
-  const pad=120;
-  btn.style.left=Math.random()*(innerWidth-pad)+'px';
-  btn.style.top =Math.random()*(innerHeight-pad)+'px';
-  noMoves++;
-  if(noMoves>=7) btn.style.display='none';
+/* Hayır Butonu Kaçırma */
+function runAway() {
+  const btn = document.getElementById('no-btn');
+  btn.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+  btn.style.top = Math.random() * (window.innerHeight - 50) + 'px';
 }
 
-/* ══ CELEBRATE ══ */
-function celebrate(){
+function celebrate() {
   show('s5');
-  const emojis=['💜','💖','✨','🌸','💝','⭐','🌟','🎀','💫'];
-  setInterval(()=>{
-    const d=document.createElement('div');
-    d.className='rain-item';
-    d.innerText=emojis[Math.floor(Math.random()*emojis.length)];
-    d.style.cssText=`left:${Math.random()*100}vw;top:-50px;font-size:${16+Math.random()*22}px;animation-duration:${2.8+Math.random()*2.4}s;`;
+  setInterval(() => {
+    const d = document.createElement('div');
+    d.innerHTML = '💜';
+    d.style.position = 'fixed';
+    d.style.left = Math.random() * 100 + 'vw';
+    d.style.top = '-50px';
+    d.style.transition = '4s linear';
+    d.style.fontSize = Math.random() * 20 + 20 + 'px';
     document.body.appendChild(d);
-    setTimeout(()=>d.remove(), 5500);
-  }, 160);
+    setTimeout(() => d.style.top = '110vh', 10);
+    setTimeout(() => d.remove(), 4500);
+  }, 100);
 }
 </script>
 </body>
